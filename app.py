@@ -85,7 +85,7 @@ def generate_summary(text, file_name):
     target_text = text[:5000] 
     
     prompt = f"以下の資料の内容を、主要なトピック、結論、特徴に焦点を当てて300文字程度で要約してください。:\n\n{target_text}"
-    res = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt)
+    res = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
     
     return {
         "text": f"【資料全体概要: {file_name}】\n{res.text}",
@@ -115,7 +115,7 @@ def rephrase_query(user_query, chat_history):
     
     回答は書き換えた文章のみを出力してください。
     """
-    res = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt)
+    res = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
     return res.text.strip()
 
 
@@ -190,7 +190,7 @@ if prompt := st.chat_input("資料の内容について質問してください"
             context_text = "\n\n".join(context_parts)
 
             # 4. 回答の生成
-            chat = client.chats.create(model="gemini-2.5-flash-lite")
+            chat = client.chats.create(model="gemini-2.5-flash")
             final_prompt = f"""以下の「複数の資料」を参考にして答えてください。
             ユーザーが「資料1」や「パワポ」などと呼んでいる場合は、資料名から推測して適切に回答してください。
             回答の際、可能であれば「〇〇（資料名）によると〜」と出典を明記してください。
