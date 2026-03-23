@@ -6,3 +6,5 @@ venv/
 .venv/
 
 .DS_Store
+
+.streamlit/secrets.toml

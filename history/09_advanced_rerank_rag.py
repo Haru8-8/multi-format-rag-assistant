@@ -211,33 +211,16 @@ if prompt := st.chat_input("質問をどうぞ"):
                 top_n=5
             )
             
-            # Step 4: 回答生成用のコンテキスト構築（番号付き）
-            context_text = ""
-            for i, c in enumerate(refined_chunks):
-                context_text += f"--- 資料[{i+1}] ---\n出典: {c['source']}\nTYPE: {c['type']}\n内容: {c['text']}\n\n"
-
-            final_prompt = f"""
-            あなたは誠実なアシスタントです。提供された資料のみに基づいて質問に答えてください。
-            
-            【指示】
-            ・回答の各文の末尾に、根拠となった資料の番号を [1] の形式で必ず付けてください。
-            ・複数の資料が根拠の場合は [1][2] と併記してください。
-            ・資料に答えがない場合は「提供された資料内には該当する情報が見当たりませんでした」と答えてください。
-            
-            【資料】
-            {context_text}
-            
-            【質問】
-            {prompt}
-            """
+            # Step 4: Final Generation
+            context = "\n\n".join([f"【出典: {c['source']} ({c['type']})】\n{c['text']}" for c in refined_chunks])
+            final_prompt = f"以下の資料を参考に質問に答えて。資料にないことは「不明」としてください。\n\n{context}\n\n質問: {prompt}"
             res = client.models.generate_content(model="gemini-2.5-flash", contents=final_prompt)
             
             with st.chat_message("assistant"):
                 st.markdown(res.text)
-
-                with st.expander("📚 参照された資料の裏付け"):
+                with st.expander("🔍 内部処理の詳細 (Rerank結果)"):
+                    st.write("**生成クエリとHyDE:**", targets)
                     for i, c in enumerate(refined_chunks):
-                        st.write(f"**[{i+1}] {c['source']}**")
-                        st.info(c['text'])
+                        st.info(f"Rank {i+1}: {c['source']} ({c['type']})\n{c['text'][:200]}...")
             
             st.session_state.messages.append({"role": "assistant", "content": res.text})
